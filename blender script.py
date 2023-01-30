@@ -2,6 +2,8 @@ import bpy
 
 nb_barres = 20
 meter = "Meter."
+bpy.data.scenes['Scene'].frame_set(0)
+bpy.data.objects["Aspect"].location
 for i in range(1, nb_barres):
 
     #    if i<10:
@@ -10,7 +12,6 @@ for i in range(1, nb_barres):
     #        meter = "Meter" + ".0"
 
     bpy.data.objects[meter + str(i)].select_set(True)
-    bpy.data.scenes['Scene'].frame_set(0)
     bpy.ops.object.duplicate_move_linked(OBJECT_OT_duplicate={"linked": True, "mode": 'TRANSLATION'},
                                          TRANSFORM_OT_translate={"value": (1.1, 0, 0), "orient_axis_ortho": 'X',
                                                                  "orient_type": 'GLOBAL',
@@ -29,6 +30,8 @@ for i in range(1, nb_barres):
                                                                  "view2d_edge_pan": False, "release_confirm": False,
                                                                  "use_accurate": False,
                                                                  "use_automerge_and_split": False})
+    bpy.ops.object.make_single_user(object=True, obdata=True, material=True, animation=False, obdata_animation=False)
+
     for obj in bpy.context.selected_objects:
         obj.name = meter + str(i + 1)
 
@@ -55,8 +58,8 @@ for i in range(1, nb_barres):
 
 #    bpy.ops.graph.sound_bake(filepath="G:\\Perso\\Musiques\\Hades - In the Blood (ft. Ashley Barrett).mp3", low=20, high=20000)
 
-# bpy.ops.object.select_all(action='DESELECT')
-# bpy.data.objects["Meter.001"].select_set(True)
-# obj.hide_set(state)
+#bpy.ops.object.select_all(action='DESELECT')
+#bpy.data.objects["Meter.1"].select_set(True)
+#obj.hide_set(state)
 
 
