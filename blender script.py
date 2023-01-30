@@ -3,7 +3,7 @@ import bpy
 nb_barres = 20
 meter = "Meter."
 bpy.data.scenes['Scene'].frame_set(0)
-tempLoaction = (0,0,1)
+tempLoaction = (0, 0, 1)
 bpy.data.objects["Aspect"].location = tempLoaction
 for i in range(1, nb_barres):
 
@@ -38,9 +38,17 @@ for i in range(1, nb_barres):
 
     ob = bpy.context.active_object
     ob.data.materials[0] = bpy.data.materials.get("Meter material Full.001")
-    
-#    nodes = bpy.data.materials.get("Meter material Full.001").node_tree.nodes
-#    node = nodes['Value.002']
+
+    nodes = bpy.data.materials.get("Meter material Full.001").node_tree.nodes
+    node = nodes['Value.002']
+
+    #    mat = bpy.data.materials.get("Meter material Full.001")
+
+    #    mat.node_tree.nodes["Music"].inputs[0].default_value = 0.5
+
+    nodes.node.outputs[0].value = bpy.ops.graph.sound_bake(filepath="C:\\Users\\axelf\\PycharmProjects\\Blender-python-code\\Build a Castle.mp3", low=20, high=20000, attack=0.2)
+
+
 #    bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].value = bpy.ops.graph.sound_bake(filepath="G:\\Perso\\Musiques\\Hades - In the Blood (ft. Ashley Barrett).mp3", low=20, high=20000)
 
 
@@ -54,8 +62,8 @@ for i in range(1, nb_barres):
 
 bpy.data.objects["Aspect"].location = (0, 0, 0.25)
 
-#bpy.ops.object.select_all(action='DESELECT')
-#bpy.data.objects["Meter.1"].select_set(True)
-#obj.hide_set(state)
+# bpy.ops.object.select_all(action='DESELECT')
+# bpy.data.objects["Meter.1"].select_set(True)
+# obj.hide_set(state)
 
 
