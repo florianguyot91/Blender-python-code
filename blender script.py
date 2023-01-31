@@ -41,7 +41,7 @@ for i in range(1, nb_barres):
     
     
     
-    # TO DO copy materials into objects and link the sound as f-curve
+    # TO DO copy materials into objects and link the sound as f-curvebhfgfdthfchgfhjfcghgh
     
     
 
