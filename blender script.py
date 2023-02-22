@@ -79,7 +79,7 @@ for i in range(1, nb_barres):
     c = bpy.context.copy()
     get_context_area(bpy.context, c)
 
-    bpy.data.materials[obj.name].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(data_path='default_value', frame=1)
+    bpy.data.materials["Meter material Full." + str(i + 1)].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(data_path='default_value', frame=1)
 
     # bpy.ops.graph.sound_bake("ob.data.materials[0].node_tree.nodes['Value.002'].outputs[0].default_value", filepath=file_path, low=100000, high=20000, attack=0.2)
 
