@@ -1,6 +1,30 @@
 import bpy
 
 file_path = "C:\\Users\\axelf\\PycharmProjects\\Blender-python-code\\Build a Castle.mp3"
+original_type = bpy.context.area.type
+
+
+def get_context_area(context, context_dict, area_type='GRAPH_EDITOR',
+                     context_screen=False):
+    if not context_screen:  # default
+        screens = bpy.data.screens
+    else:
+        screens = [context.screen]
+    for screen in screens:
+        for area_index, area in screen.areas.items():
+            if area.type == area_type:
+                for region in area.regions:
+                    if region.type == 'WINDOW':
+                        context_dict["area"] = area
+                        context_dict["screen"] = screen
+                        context_dict["scene"] = context.scene
+                        context_dict["window"] = context.window
+                        context_dict["region"] = region
+                        return area
+    return None
+
+
+
 
 nb_barres = 20
 meter = "Meter."
@@ -41,27 +65,27 @@ for i in range(1, nb_barres):
     
     
     
-    # TO DO copy materials into objects and link the sound as f-curvebhfgfdthfchgfhjfcghgh
-    
-    
+    # TO DO copy materials into objects and link the sound as f-curve
 
     ob = bpy.context.active_object
+
     ob.data.materials[0] = bpy.data.materials.get("Meter material Full.001").copy()
+    ob.data.materials[0].name = ("Meter material Full." + str(i+1))
+    # bpy.context.area.type = "GRAPH_EDITOR"
 
-    node_tree = bpy.data.materials.get("Meter material Full.001").node_tree.nodes
-    value_node = node_tree['Value.002']
+    # "ob.data.materials[0].node_tree.nodes['Value.002'].outputs[0].default_value"
+    # 'bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].default_value'
 
-    #    mat = bpy.data.materials.get("Meter material Full.001")
+    c = bpy.context.copy()
+    get_context_area(bpy.context, c)
 
-    #    mat.node_tree.nodes["Music"].inputs[0].default_value = 0.5
-    original_type = bpy.context.area.type
-    bpy.context.area.type = "NODE_EDITOR"
-    value_node.active
-    bpy.context.area.type = "GRAPH_EDITOR"
-    bpy.ops.graph.sound_bake(filepath=file_path, low=100000, high=20000, attack=0.2)
-    bpy.context.area.type = original_type
-    
+    bpy.data.materials[obj.name].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(data_path='default_value', frame=1)
+
+    # bpy.ops.graph.sound_bake("ob.data.materials[0].node_tree.nodes['Value.002'].outputs[0].default_value", filepath=file_path, low=100000, high=20000, attack=0.2)
 
 bpy.data.objects["Aspect"].location.z = zLocation
+bpy.context.area.type = original_type
+
+
 
 
