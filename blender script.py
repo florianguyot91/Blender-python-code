@@ -1,6 +1,7 @@
 import bpy
+import os
 
-file_path = "C:\\Users\\axelf\\PycharmProjects\\Blender-python-code\\Build a Castle.mp3"
+file_path = os.path.join(os.path.dirname(bpy.data.filepath), "Build_a_Castle.mp3")
 original_type = bpy.context.area.type
 
 
@@ -71,7 +72,7 @@ for i in range(1, nb_barres):
 
     ob.data.materials[0] = bpy.data.materials.get("Meter material Full.001").copy()
     ob.data.materials[0].name = ("Meter material Full." + str(i+1))
-    # bpy.context.area.type = "GRAPH_EDITOR"
+    bpy.context.area.type = "GRAPH_EDITOR"
 
     # "ob.data.materials[0].node_tree.nodes['Value.002'].outputs[0].default_value"
     # 'bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].default_value'
@@ -81,7 +82,7 @@ for i in range(1, nb_barres):
 
     bpy.data.materials["Meter material Full." + str(i + 1)].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(data_path='default_value', frame=1)
 
-    # bpy.ops.graph.sound_bake("ob.data.materials[0].node_tree.nodes['Value.002'].outputs[0].default_value", filepath=file_path, low=100000, high=20000, attack=0.2)
+    bpy.ops.graph.sound_bake(filepath=file_path, low=100000, high=20000, attack=0.2)
 
 bpy.data.objects["Aspect"].location.z = zLocation
 bpy.context.area.type = original_type
