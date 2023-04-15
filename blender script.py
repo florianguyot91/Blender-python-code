@@ -1,6 +1,10 @@
 import bpy
 import os
 
+
+bpy.ops.outliner.orphans_purge(do_recursive=True)
+
+
 file_path = os.path.join(os.path.dirname(bpy.data.filepath), "Build_a_Castle.mp3")
 original_type = bpy.context.area.type
 nb_barres = 20
@@ -12,7 +16,6 @@ zLocation = bpy.data.objects["Aspect"].location.z
 bpy.data.objects["Aspect"].location = tempLoaction
 
 context = bpy.context
-
 
 for area in context.screen.areas:
     if area != context.area:
@@ -58,12 +61,13 @@ for i in range(1, nb_barres):
 
     ob.data.materials[0] = bpy.data.materials.get("Meter material Full.001").copy()
     ob.data.materials[0].name = ("Meter material Full." + str(i + 1))
-    bpy.context.area.type = "GRAPH_EDITOR"
+    bpy.context.area.type = "NODE_EDITOR"
 
     bpy.data.materials["Meter material Full." + str(i + 1)].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(
         data_path='default_value', frame=1)
+    bpy.context.area.type = "GRAPH_EDITOR"
 
-    bpy.ops.graph.sound_bake(filepath=file_path, low=100*i, high=100*(i+1), attack=0.2)
+    bpy.ops.graph.sound_bake(filepath=file_path, low=100 * i, high=100 * (i + 1), attack=0.2)
 
 bpy.data.objects["Aspect"].location.z = zLocation
 bpy.context.area.type = original_type
