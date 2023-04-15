@@ -1,21 +1,23 @@
 import math
-
 import bpy
 import os
 
-bpy.ops.outliner.orphans_purge(do_recursive=True)
-
-file_path = os.path.join(os.path.dirname(bpy.data.filepath), "Build_a_Castle.mp3")
+file_path = os.path.join(os.path.dirname(bpy.data.filepath),
+                         "Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spider-Verse).mp3")
 original_type = bpy.context.area.type
 nb_barres = 20
 bar_spacing_x = 1.1
 meter = "Meter."
-bpy.data.scenes['Scene'].frame_set(0)
+bpy.data.scenes['Scene'].frame_set(1)
 tempLocation = (0, 0, 1)
 zLocation = bpy.data.objects["Aspect"].location.z
 bpy.data.objects["Aspect"].location = tempLocation
 min_frequency = 20
 max_frequency = 20000
+
+bpy.ops.outliner.orphans_purge(do_recursive=True)
+bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].keyframe_delete(
+    data_path='default_value', frame=1)
 
 context = bpy.context
 
@@ -30,8 +32,6 @@ for i in range(1, nb_barres):
     loga_frequency_min = math.pow(10, (((math.log10(max_frequency - min_frequency)) / nb_barres) * i)) + min_frequency
     loga_frequency_max = math.pow(10,
                                   (((math.log10(max_frequency - min_frequency)) / nb_barres) * (i + 1))) + min_frequency
-    if i == 1:
-        loga_frequency_min = 20
 
     bpy.data.objects[meter + str(i)].select_set(True)
     context.area.type = 'VIEW_3D'
@@ -63,8 +63,6 @@ for i in range(1, nb_barres):
 
     bpy.context.object.modifiers["Hook-Empty"].object = bpy.data.objects["Aspect"]
 
-    # TO DO copy materials into objects and link the sound as f-curve
-
     ob = bpy.context.active_object
 
     ob.data.materials[0] = bpy.data.materials.get("Meter material Full.001").copy()
@@ -76,6 +74,18 @@ for i in range(1, nb_barres):
     bpy.context.area.type = "GRAPH_EDITOR"
 
     bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=0.2)
+
+bpy.data.objects[meter + str(1)].select_set(True)
+
+bpy.context.area.type = "NODE_EDITOR"
+
+bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].keyframe_insert(
+    data_path='default_value', frame=1)
+bpy.context.area.type = "GRAPH_EDITOR"
+
+loga_frequency_first_bar = math.pow(10, (((math.log10(max_frequency - min_frequency)) / nb_barres) * 1)) + min_frequency
+
+bpy.ops.graph.sound_bake(filepath=file_path, low=20, high=loga_frequency_first_bar, attack=0.2)
 
 bpy.data.objects["Aspect"].location.z = zLocation
 bpy.context.area.type = original_type
