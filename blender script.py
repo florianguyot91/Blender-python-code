@@ -1,9 +1,9 @@
+import math
+
 import bpy
 import os
 
-
 bpy.ops.outliner.orphans_purge(do_recursive=True)
-
 
 file_path = os.path.join(os.path.dirname(bpy.data.filepath), "Build_a_Castle.mp3")
 original_type = bpy.context.area.type
@@ -11,9 +11,11 @@ nb_barres = 20
 bar_spacing_x = 1.1
 meter = "Meter."
 bpy.data.scenes['Scene'].frame_set(0)
-tempLoaction = (0, 0, 1)
+tempLocation = (0, 0, 1)
 zLocation = bpy.data.objects["Aspect"].location.z
-bpy.data.objects["Aspect"].location = tempLoaction
+bpy.data.objects["Aspect"].location = tempLocation
+min_frequency = 20
+max_frequency = 20000
 
 context = bpy.context
 
@@ -24,6 +26,12 @@ for area in context.screen.areas:
 override = {'region': area.regions[0]}
 
 for i in range(1, nb_barres):
+
+    loga_frequency_min = math.pow(10, (((math.log10(max_frequency - min_frequency)) / nb_barres) * i)) + min_frequency
+    loga_frequency_max = math.pow(10,
+                                  (((math.log10(max_frequency - min_frequency)) / nb_barres) * (i + 1))) + min_frequency
+    if i == 1:
+        loga_frequency_min = 20
 
     bpy.data.objects[meter + str(i)].select_set(True)
     context.area.type = 'VIEW_3D'
@@ -67,7 +75,7 @@ for i in range(1, nb_barres):
         data_path='default_value', frame=1)
     bpy.context.area.type = "GRAPH_EDITOR"
 
-    bpy.ops.graph.sound_bake(filepath=file_path, low=100 * i, high=100 * (i + 1), attack=0.2)
+    bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=0.2)
 
 bpy.data.objects["Aspect"].location.z = zLocation
 bpy.context.area.type = original_type
