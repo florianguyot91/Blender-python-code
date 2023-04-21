@@ -3,7 +3,7 @@ import bpy
 import os
 
 file_path = os.path.join(os.path.dirname(bpy.data.filepath),
-                         "Musics/Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spider-Verse).mp3")
+                         "Musics/Rammstein - Waidmanns Heil (Official Lyric Video).mp3")
 original_type = bpy.context.area.type
 nb_barres = 20
 bar_spacing_x = 1.1
@@ -16,8 +16,8 @@ min_frequency = 20
 max_frequency = 20000
 
 bpy.ops.outliner.orphans_purge(do_recursive=True)
-# bpy.data.materials["Meter material Full.001"].node_tree.nodes["Value.002"].outputs[0].keyframe_delete(
-#     data_path='default_value', frame=1)
+
+
 
 context = bpy.context
 

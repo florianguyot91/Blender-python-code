@@ -1,8 +1,9 @@
 import bpy
+bpy.ops.sequencer.delete()
 
 # Set the filepath to the audio file
-audio_filepath = ".\Blender-python-code\Musics\Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spider-Verse).mp3"
-audio_name = "Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spider-Verse).mp3"
+audio_name = "Rammstein - Waidmanns Heil (Official Lyric Video).mp3"
+audio_filepath = ".\Blender-python-code\Musics" + "\" + " + audio_name
 
 # Switch to the VSE workspace
 bpy.context.area.ui_type = 'SEQUENCE_EDITOR'
@@ -17,8 +18,7 @@ bpy.ops.sequencer.sound_strip_add(
 
 # Get the audio strip from the VSE
 audio_strip = bpy.data.scenes["Scene"].sequence_editor.sequences_all[
-    "Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spide"]
-# TODO cuts part of name
+    audio_name]
 
 # Set the end frame of the audio strip
 audio_strip.frame_final_end = int(audio_strip.frame_start + audio_strip.frame_final_duration)
