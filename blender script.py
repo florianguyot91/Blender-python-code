@@ -3,7 +3,7 @@ import bpy
 import os
 
 file_path = os.path.join(os.path.dirname(bpy.data.filepath),
-                         "Build_a_Castle.mp3")
+                         "Musics/Post Malone, Swae Lee - Sunflower (Spider-Man_ Into the Spider-Verse).mp3")
 original_type = bpy.context.area.type
 nb_barres = 20
 bar_spacing_x = 1.1
