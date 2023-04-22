@@ -2,7 +2,7 @@ import bpy
 bpy.ops.sequencer.delete()
 
 # Set the filepath to the audio file
-audio_name = "Rammstein - Waidmanns Heil (Official Lyric Video).mp3"
+audio_name = "Rhapsody - The Magic of the Wizards Dream.mp3"
 audio_filepath = ".\Blender-python-code\Musics" + "\" + " + audio_name
 
 # Switch to the VSE workspace

@@ -3,7 +3,7 @@ import bpy
 import os
 
 file_path = os.path.join(os.path.dirname(bpy.data.filepath),
-                         "Musics/Rammstein - Waidmanns Heil (Official Lyric Video).mp3")
+                         "Musics/Rhapsody - The Magic of the Wizards Dream.mp3")
 original_type = bpy.context.area.type
 nb_barres = 20
 bar_spacing_x = 1.1
