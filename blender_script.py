@@ -41,11 +41,9 @@ def unregister():
 
 
 def delete_f_curves():
-    ob = bpy.context.object  # active object
+    bpy.context.area.type = "GRAPH_EDITOR"
+    bpy.ops.anim.channels_delete()
 
-    for fcu in ob.animation_data.action.fcurves:
-        for mod in fcu.modifiers:
-            fcu.modifiers.remove(mod)
 
 
 def import_audio(file_path):
@@ -88,7 +86,7 @@ def audio_processing(file_path):
     context = bpy.context
     bpy.data.objects[meter + str(1)].select_set(True)
 
-    # delete_f_curves()
+    delete_f_curves()
 
     remove_previous_meters()
 
