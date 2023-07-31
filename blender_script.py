@@ -84,7 +84,6 @@ def audio_processing(file_path):
     min_frequency = 20
     max_frequency = 20000
     context = bpy.context
-    bpy.data.objects[meter + str(1)].select_set(True)
 
     delete_f_curves()
 
@@ -94,7 +93,7 @@ def audio_processing(file_path):
         if area != context.area:
             break
     override = {'region': area.regions[0]}
-    bpy.data.objects[meter + str(1)].select_set(True)
+    bpy.data.objects["Meter.1"].select_set(True)
     for i in range(1, nb_barres):
 
         loga_frequency_min = math.pow(10,
@@ -166,11 +165,13 @@ def audio_processing(file_path):
 
 
 def remove_previous_meters():
+    bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects["Aspect"].select_set(True)
     bpy.data.objects["Height"].select_set(True)
     bpy.data.objects["Spacing"].select_set(True)
     bpy.data.objects["Camera"].select_set(True)
     bpy.data.objects["Intensity"].select_set(True)
+    bpy.data.objects["Meter.1"].select_set(True)
     bpy.ops.object.select_all(action='INVERT')
     bpy.ops.object.delete(use_global=False, confirm=False)
     bpy.ops.outliner.orphans_purge(do_recursive=True)
