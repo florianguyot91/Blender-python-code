@@ -7,9 +7,10 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.types import Operator
 
 
-class OT_TestOpenFilebrowser(Operator, ImportHelper):
-    bl_idname = "test.open_filebrowser"
+class OpenFilebrowser(Operator, ImportHelper):
+    bl_idname = "audio.open_filebrowser"
     bl_label = "Open the file browser"
+    bl_options = {'REGISTER', 'UNDO'}
 
     filter_glob: StringProperty(
         default='*.mp3',
@@ -30,15 +31,6 @@ class OT_TestOpenFilebrowser(Operator, ImportHelper):
         audio_processing(self.filepath)
 
         return {'FINISHED'}
-
-
-def register():
-    bpy.utils.register_class(OT_TestOpenFilebrowser)
-
-
-def unregister():
-    bpy.utils.unregister_class(OT_TestOpenFilebrowser)
-
 
 def delete_f_curves():
     bpy.context.area.type = "GRAPH_EDITOR"
@@ -176,9 +168,21 @@ def remove_previous_meters():
     bpy.ops.object.delete(use_global=False, confirm=False)
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
+def add_object_button(self, context):
+    self.layout.operator(
+        OpenFilebrowser.bl_idname,
+        text="Add File",
+        icon='PLUGIN')
+
+def register():
+    bpy.utils.register_class(OpenFilebrowser)
+    bpy.types.VIEW3D_MT_mesh_add.append(add_object_button)
+
+def unregister():
+    bpy.utils.unregister_class(OpenFilebrowser)
+    bpy.types.VIEW3D_MT_mesh_add.remove(add_object_button)
+
+
 
 if __name__ == "__main__":
     register()
-
-    # test call
-    bpy.ops.test.open_filebrowser('INVOKE_DEFAULT')
