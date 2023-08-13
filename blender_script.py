@@ -32,10 +32,10 @@ class OpenFilebrowser(Operator, ImportHelper):
 
         return {'FINISHED'}
 
+
 def delete_f_curves():
     bpy.context.area.type = "GRAPH_EDITOR"
     bpy.ops.anim.channels_delete()
-
 
 
 def import_audio(file_path):
@@ -168,20 +168,37 @@ def remove_previous_meters():
     bpy.ops.object.delete(use_global=False, confirm=False)
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
-def add_object_button(self, context):
-    self.layout.operator(
-        OpenFilebrowser.bl_idname,
-        text="Add File",
-        icon='PLUGIN')
+
+bpy.types.WindowManager.show_mlt_interface = bpy.props.BoolProperty(name="Show MLT",
+                                                                    description="When True, Show the MLT interface",
+                                                                    default=False)
+
+
+class MyPanel(bpy.types.Panel):
+    bl_label = "MLT - Interface"
+    bl_idname = "VIEW_3D_PT_MLT_interface_2"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_description = "First Panel baby !"
+
+    def draw(self, context):
+        l = self.layout
+        r = l.row(align=True)
+        r.prop(context.window_manager, "show_mlt_interface", text="", icon="DOWNARROW_HLT")
+        r.label(text="Ma Premiere Interface !")
+        if context.window_manager.show_mlt_interface:
+            c = l.column(align=True)
+            c.operator("audio.open_filebrowser")
+
 
 def register():
     bpy.utils.register_class(OpenFilebrowser)
-    bpy.types.VIEW3D_MT_mesh_add.append(add_object_button)
+    bpy.utils.register_class(MyPanel)
+
 
 def unregister():
     bpy.utils.unregister_class(OpenFilebrowser)
-    bpy.types.VIEW3D_MT_mesh_add.remove(add_object_button)
-
+    bpy.utils.unregister_class(MyPanel)
 
 
 if __name__ == "__main__":
