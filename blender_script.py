@@ -5,6 +5,7 @@ import os
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 from bpy.types import Operator
+import logging
 
 
 class OpenFilebrowser(Operator, ImportHelper):
@@ -27,8 +28,8 @@ class OpenFilebrowser(Operator, ImportHelper):
         print('File extension:', extension)
         print('File name:', filename)
         print('Directory :', directory)
-        import_audio(self.filepath)
-        audio_processing(self.filepath)
+
+        context.scene.open_filebrowser = self.filepath
 
         return {'FINISHED'}
 
@@ -49,14 +50,16 @@ def import_audio(file_path):
         filepath=file_path,
         directory=os.path.dirname(file_path),
         files=[
-            {"name": audio_name,
-             "name": audio_name}
+            {
+            "name": audio_name,
+            "name": audio_name
+            }
         ],
         relative_path=True,
-        frame_start=1, channel=1)
+        frame_start=1,
+        channel=1)
     # Get the audio strip from the VSE
-    audio_strip = bpy.data.scenes["Scene"].sequence_editor.sequences_all[
-        audio_name]
+    audio_strip = bpy.data.scenes["Scene"].sequence_editor.sequences_all[os.path.basename(file_path[2:])]
     # Set the end frame of the audio strip
     audio_strip.frame_final_end = int(audio_strip.frame_start + audio_strip.frame_final_duration)
     # Set the scene end frame to match the end of the audio strip
@@ -65,6 +68,7 @@ def import_audio(file_path):
 
 
 def audio_processing(file_path):
+    file_path = file_path[2:]
     original_type = bpy.context.area.type
     nb_barres = 30
     bar_spacing_x = 1.1
@@ -173,32 +177,83 @@ bpy.types.WindowManager.show_mlt_interface = bpy.props.BoolProperty(name="Show M
                                                                     description="When True, Show the MLT interface",
                                                                     default=False)
 
+class RENDER_OT_generate_visualizer(bpy.types.Operator):
+    bl_idname = "object.frequencies_generate"
+    bl_label = "Generate Frequencies"
+    bl_description = "Generates frequencies"
 
-class MyPanel(bpy.types.Panel):
-    bl_label = "MLT - Interface"
-    bl_idname = "VIEW_3D_PT_MLT_interface_2"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_description = "First Panel baby !"
+    @classmethod
+    def poll(self, context):
+        scene = context.scene
+        if scene.open_filebrowser == "":
+            return False
+        else:
+            return True
+
+    def execute(self, context):
+        import_audio(context.scene.open_filebrowser)
+        audio_processing(context.scene.open_filebrowser)
+
+
+class FREQUENCIES_PT_ui(bpy.types.Panel):
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_label = "Frequencies"
+    bl_context = "scene"
+    bl_options = {"DEFAULT_CLOSED"}
 
     def draw(self, context):
-        l = self.layout
-        r = l.row(align=True)
-        r.prop(context.window_manager, "show_mlt_interface", text="", icon="DOWNARROW_HLT")
-        r.label(text="Ma Premiere Interface !")
-        if context.window_manager.show_mlt_interface:
-            c = l.column(align=True)
-            c.operator("audio.open_filebrowser")
+        layout = self.layout
+        scene = bpy.context.scene
+        row = layout.row()
+        row.prop(scene, "open_filebrowser", icon="SOUND")
+        row = layout.row()
+        row.prop(scene, "bz_bar_count")
+        row = layout.row()
+        row.prop(scene, "bz_spacing")
+        row = layout.row()
+        row.prop(scene, "chanel")
+
+        row = layout.row()
+        row.operator("object.frequencies_generate", icon="FILE_REFRESH")
+
+def initprop():
+    bpy.types.Scene.open_filebrowser = bpy.props.StringProperty(
+        name="Audio Path",
+        description="Define path of the audio file",
+        subtype="FILE_PATH",
+        )
+    bpy.types.Scene.bz_bar_count = bpy.props.IntProperty(
+        name="Bar Count",
+        description="The number of bars to make",
+        default=30,
+        min=1
+        )
+    bpy.types.Scene.bz_spacing = bpy.props.FloatProperty(
+        name="Spacing",
+        description="Spacing between bars",
+        default=1.1,
+        min=0
+        )
+    bpy.types.Scene.chanel = bpy.props.IntProperty(
+        name="Chanel",
+        description="Chanel of audio",
+        default=1,
+        min=1
+        )
 
 
 def register():
+    initprop()
+    bpy.utils.register_class(RENDER_OT_generate_visualizer)
     bpy.utils.register_class(OpenFilebrowser)
-    bpy.utils.register_class(MyPanel)
+    bpy.utils.register_class(FREQUENCIES_PT_ui)
 
 
 def unregister():
+    bpy.utils.unregister_class(RENDER_OT_generate_visualizer)
     bpy.utils.unregister_class(OpenFilebrowser)
-    bpy.utils.unregister_class(MyPanel)
+    bpy.utils.unregister_class(FREQUENCIES_PT_ui)
 
 
 if __name__ == "__main__":
