@@ -28,7 +28,7 @@ def delete_f_curves():
     bpy.ops.anim.channels_delete()
 
 
-def import_audio(file_path):
+def import_audio(file_path, chanel):
     bpy.ops.sequencer.delete()
     # Set the filepath to the audio file
     audio_name = os.path.basename(file_path)
@@ -46,7 +46,7 @@ def import_audio(file_path):
         ],
         relative_path=True,
         frame_start=1,
-        channel=1)
+        channel=chanel)
     # Get the audio strip from the VSE
     audio_strip = bpy.data.scenes["Scene"].sequence_editor.sequences_all[os.path.basename(file_path[2:])]
     # Set the end frame of the audio strip
@@ -56,11 +56,11 @@ def import_audio(file_path):
     bpy.context.area.ui_type = 'TEXT_EDITOR'
 
 
-def audio_processing(file_path):
+def audio_processing(file_path, bar_count, spacing, attack, release):
     print("File path : " + bpy.path.abspath(file_path))
     original_type = bpy.context.area.type
-    nb_barres = 30
-    bar_spacing_x = 1.1
+    nb_barres = bar_count
+    bar_spacing_x = spacing
     meter = "Meter."
     bpy.data.scenes['Scene'].frame_set(1)
     tempLocation = (0, 0, 1)
@@ -135,7 +135,7 @@ def audio_processing(file_path):
             data_path='default_value', frame=1)
         bpy.context.area.type = "GRAPH_EDITOR"
 
-        bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=0.2)
+        bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=attack, release=release)
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[meter + str(1)].select_set(True)
     bpy.context.area.type = "NODE_EDITOR"
@@ -144,7 +144,7 @@ def audio_processing(file_path):
     bpy.context.area.type = "GRAPH_EDITOR"
     loga_frequency_first_bar = math.pow(10,
                                         (((math.log10(max_frequency - min_frequency)) / nb_barres) * 1)) + min_frequency
-    bpy.ops.graph.sound_bake(filepath=file_path, low=20, high=loga_frequency_first_bar, attack=0.2)
+    bpy.ops.graph.sound_bake(filepath=file_path, low=20, high=loga_frequency_first_bar, attack=attack, release=release)
     bpy.data.objects["Aspect"].location.z = zLocation
     bpy.context.area.type = original_type
 
@@ -180,9 +180,8 @@ class RENDER_OT_generate_visualizer(bpy.types.Operator):
             return True
 
     def execute(self, context):
-        print(context.scene.open_filebrowser)
-        import_audio(context.scene.open_filebrowser)
-        audio_processing(context.scene.open_filebrowser)
+        import_audio(context.scene.open_filebrowser, context.scene.chanel)
+        audio_processing(context.scene.open_filebrowser, context.scene.bz_bar_count, context.scene.bz_spacing, context.scene.attack, context.scene.release)
 
 
 class FREQUENCIES_PT_ui(bpy.types.Panel):
@@ -203,6 +202,10 @@ class FREQUENCIES_PT_ui(bpy.types.Panel):
         row.prop(scene, "bz_spacing")
         row = layout.row()
         row.prop(scene, "chanel")
+        row = layout.row()
+        row.prop(scene, "attack")
+        row = layout.row()
+        row.prop(scene, "release")
 
         row = layout.row()
         row.operator("object.frequencies_generate", icon="FILE_REFRESH")
@@ -231,6 +234,21 @@ def initprop():
         default=1,
         min=1
         )
+    bpy.types.Scene.attack = bpy.props.FloatProperty(
+        name="Attack",
+        description="Attack time",
+        default=0.005,
+        min=0,
+        max=5
+        )
+    bpy.types.Scene.release = bpy.props.FloatProperty(
+        name="Release",
+        description="Release time",
+        default=0.2,
+        min=0,
+        max=2
+        )
+
 
 
 def register():
