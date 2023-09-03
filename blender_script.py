@@ -19,18 +19,7 @@ class OpenFilebrowser(Operator, ImportHelper):
     )
 
     def execute(self, context):
-        filename_path, extension = os.path.splitext(self.filepath)
-        filename = os.path.basename(self.filepath)
-        directory = os.path.dirname(self.filepath)
-
-        print('Selected file:', self.filepath)
-        print('File name path:', filename_path)
-        print('File extension:', extension)
-        print('File name:', filename)
-        print('Directory :', directory)
-
         context.scene.open_filebrowser = self.filepath
-
         return {'FINISHED'}
 
 
@@ -68,7 +57,7 @@ def import_audio(file_path):
 
 
 def audio_processing(file_path):
-    file_path = file_path[2:]
+    print("File path : " + bpy.path.abspath(file_path))
     original_type = bpy.context.area.type
     nb_barres = 30
     bar_spacing_x = 1.1
@@ -191,6 +180,7 @@ class RENDER_OT_generate_visualizer(bpy.types.Operator):
             return True
 
     def execute(self, context):
+        print(context.scene.open_filebrowser)
         import_audio(context.scene.open_filebrowser)
         audio_processing(context.scene.open_filebrowser)
 
