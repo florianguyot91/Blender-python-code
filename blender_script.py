@@ -8,19 +8,19 @@ from bpy.types import Operator
 import logging
 
 
-class OpenFilebrowser(Operator, ImportHelper):
-    bl_idname = "audio.open_filebrowser"
-    bl_label = "Open the file browser"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    filter_glob: StringProperty(
-        default='*.mp3',
-        options={'HIDDEN'}
-    )
-
-    def execute(self, context):
-        context.scene.open_filebrowser = self.filepath
-        return {'FINISHED'}
+# class OpenFilebrowser(Operator, ImportHelper):
+#     bl_idname = "audio.open_filebrowser"
+#     bl_label = "Open the file browser"
+#     bl_options = {'REGISTER', 'UNDO'}
+#
+#     filter_glob: StringProperty(
+#         default='*.mp3',
+#         options={'HIDDEN'}
+#     )
+#
+#     def execute(self, context):
+#         context.scene.open_filebrowser = self.filepath
+#         return {'FINISHED'}
 
 
 def delete_f_curves():
@@ -180,9 +180,10 @@ class RENDER_OT_generate_visualizer(bpy.types.Operator):
             return True
 
     def execute(self, context):
-        import_audio(context.scene.open_filebrowser, context.scene.chanel)
-        audio_processing(context.scene.open_filebrowser, context.scene.bz_bar_count, context.scene.bz_spacing, context.scene.attack, context.scene.release)
-
+        audio_file = bpy.path.abspath(context.scene.open_filebrowser)
+        import_audio(audio_file, context.scene.chanel)
+        audio_processing(audio_file, context.scene.bz_bar_count, context.scene.bz_spacing, context.scene.attack, context.scene.release)
+        return {'FINISHED'}
 
 class FREQUENCIES_PT_ui(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
@@ -254,13 +255,13 @@ def initprop():
 def register():
     initprop()
     bpy.utils.register_class(RENDER_OT_generate_visualizer)
-    bpy.utils.register_class(OpenFilebrowser)
+    # bpy.utils.register_class(OpenFilebrowser)
     bpy.utils.register_class(FREQUENCIES_PT_ui)
 
 
 def unregister():
     bpy.utils.unregister_class(RENDER_OT_generate_visualizer)
-    bpy.utils.unregister_class(OpenFilebrowser)
+    # bpy.utils.unregister_class(OpenFilebrowser)
     bpy.utils.unregister_class(FREQUENCIES_PT_ui)
 
 
