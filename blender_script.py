@@ -2,26 +2,6 @@ import math
 import bpy
 import os
 
-from bpy.props import StringProperty
-from bpy_extras.io_utils import ImportHelper
-from bpy.types import Operator
-import logging
-
-
-# class OpenFilebrowser(Operator, ImportHelper):
-#     bl_idname = "audio.open_filebrowser"
-#     bl_label = "Open the file browser"
-#     bl_options = {'REGISTER', 'UNDO'}
-#
-#     filter_glob: StringProperty(
-#         default='*.mp3',
-#         options={'HIDDEN'}
-#     )
-#
-#     def execute(self, context):
-#         context.scene.open_filebrowser = self.filepath
-#         return {'FINISHED'}
-
 
 def delete_f_curves():
     bpy.context.area.type = "GRAPH_EDITOR"
@@ -33,7 +13,7 @@ def import_audio(file_path, chanel):
     # Set the filepath to the audio file
     audio_name = os.path.basename(file_path)
     # Switch to the VSE workspace
-    bpy.context.area.ui_type = 'SEQUENCE_EDITOR'
+    bpy.context.area.type = 'SEQUENCE_EDITOR'
     # Add a new audio strip to the VSE
     bpy.ops.sequencer.sound_strip_add(
         filepath=file_path,
@@ -53,10 +33,10 @@ def import_audio(file_path, chanel):
     audio_strip.frame_final_end = int(audio_strip.frame_start + audio_strip.frame_final_duration)
     # Set the scene end frame to match the end of the audio strip
     bpy.context.scene.frame_end = audio_strip.frame_final_end
-    bpy.context.area.ui_type = 'TEXT_EDITOR'
+    bpy.context.area.type = 'TEXT_EDITOR'
 
 
-def audio_processing(file_path, bar_count, spacing, attack, release):
+def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, max_freq):
     print("File path : " + bpy.path.abspath(file_path))
     original_type = bpy.context.area.type
     nb_barres = bar_count
@@ -66,8 +46,8 @@ def audio_processing(file_path, bar_count, spacing, attack, release):
     tempLocation = (0, 0, 1)
     zLocation = bpy.data.objects["Aspect"].location.z
     bpy.data.objects["Aspect"].location = tempLocation
-    min_frequency = 20
-    max_frequency = 20000
+    min_frequency = min_freq
+    max_frequency = max_freq
     context = bpy.context
 
     delete_f_curves()
@@ -78,6 +58,7 @@ def audio_processing(file_path, bar_count, spacing, attack, release):
         if area != context.area:
             break
     override = {'region': area.regions[0]}
+    bpy.context.view_layer.objects.active = bpy.data.objects["Meter.1"]
     bpy.data.objects["Meter.1"].select_set(True)
     for i in range(1, nb_barres):
 
@@ -147,6 +128,8 @@ def audio_processing(file_path, bar_count, spacing, attack, release):
     bpy.ops.graph.sound_bake(filepath=file_path, low=20, high=loga_frequency_first_bar, attack=attack, release=release)
     bpy.data.objects["Aspect"].location.z = zLocation
     bpy.context.area.type = original_type
+    bpy.context.area.ui_type = 'PROPERTIES'
+
 
 
 def remove_previous_meters():
@@ -176,13 +159,21 @@ class RENDER_OT_generate_visualizer(bpy.types.Operator):
         scene = context.scene
         if scene.open_filebrowser == "":
             return False
+        elif context.scene.min_freq >= context.scene.max_freq:
+            return False
         else:
             return True
 
     def execute(self, context):
         audio_file = bpy.path.abspath(context.scene.open_filebrowser)
         import_audio(audio_file, context.scene.chanel)
-        audio_processing(audio_file, context.scene.bz_bar_count, context.scene.bz_spacing, context.scene.attack, context.scene.release)
+        audio_processing(audio_file,
+                         context.scene.bz_bar_count,
+                         context.scene.bz_spacing,
+                         context.scene.attack,
+                         context.scene.release,
+                         context.scene.min_freq,
+                         context.scene.max_freq)
         return {'FINISHED'}
 
 class FREQUENCIES_PT_ui(bpy.types.Panel):
@@ -207,6 +198,9 @@ class FREQUENCIES_PT_ui(bpy.types.Panel):
         row.prop(scene, "attack")
         row = layout.row()
         row.prop(scene, "release")
+        cf = layout.column_flow(columns=2, align=False)
+        cf.prop(scene, "min_freq")
+        cf.prop(scene, "max_freq")
 
         row = layout.row()
         row.operator("object.frequencies_generate", icon="FILE_REFRESH")
@@ -216,6 +210,20 @@ def initprop():
         name="Audio Path",
         description="Define path of the audio file",
         subtype="FILE_PATH",
+        )
+    bpy.types.Scene.min_freq = bpy.props.IntProperty(
+        name="Min frequency",
+        description="Minimum frequency from where to start",
+        default=20,
+        min=20,
+        max=20000
+        )
+    bpy.types.Scene.max_freq = bpy.props.IntProperty(
+        name="Max frequency",
+        description="Maximum frequency from where to start",
+        default=20000,
+        min=1,
+        max=20000
         )
     bpy.types.Scene.bz_bar_count = bpy.props.IntProperty(
         name="Bar Count",
@@ -255,13 +263,11 @@ def initprop():
 def register():
     initprop()
     bpy.utils.register_class(RENDER_OT_generate_visualizer)
-    # bpy.utils.register_class(OpenFilebrowser)
     bpy.utils.register_class(FREQUENCIES_PT_ui)
 
 
 def unregister():
     bpy.utils.unregister_class(RENDER_OT_generate_visualizer)
-    # bpy.utils.unregister_class(OpenFilebrowser)
     bpy.utils.unregister_class(FREQUENCIES_PT_ui)
 
 
