@@ -38,6 +38,9 @@ def import_audio(file_path, chanel):
 
 def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, max_freq):
     print("File path : " + bpy.path.abspath(file_path))
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.view_layer.objects.active = bpy.data.objects["Meter.1"]
+    bpy.data.objects["Meter.1"].select_set(True)
     original_type = bpy.context.area.type
     nb_barres = bar_count
     bar_spacing_x = spacing
@@ -58,8 +61,6 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
         if area != context.area:
             break
     override = {'region': area.regions[0]}
-    bpy.context.view_layer.objects.active = bpy.data.objects["Meter.1"]
-    bpy.data.objects["Meter.1"].select_set(True)
     for i in range(1, nb_barres):
 
         loga_frequency_min = math.pow(10,
@@ -103,6 +104,7 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
 
         bpy.ops.object.select_all(action='DESELECT')
         bpy.data.objects[meter + str(i + 1)].select_set(True)
+        bpy.context.view_layer.objects.active = bpy.data.objects[meter + str(i + 1)]
 
         bpy.context.object.modifiers["Hook-Empty"].object = bpy.data.objects["Aspect"]
 
@@ -117,6 +119,9 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
         bpy.context.area.type = "GRAPH_EDITOR"
 
         bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=attack, release=release)
+        print("Created bar n°" + str(i))
+
+
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[meter + str(1)].select_set(True)
     bpy.context.area.type = "NODE_EDITOR"
@@ -129,6 +134,7 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
     bpy.data.objects["Aspect"].location.z = zLocation
     bpy.context.area.type = original_type
     bpy.context.area.ui_type = 'PROPERTIES'
+    print("Created bar n°" + str(nb_barres))
 
 
 
