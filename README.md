@@ -1,6 +1,7 @@
 # Audio Visualizer
 
 This Blender Python script generates a frequency-based audio visualizer using Blender's animation and sequencing capabilities. The script creates a set of bars representing different frequency ranges, and their heights are animated based on the audio input.
+Only works in Blender 3.5 https://download.blender.org/release/Blender3.5/
 
 ## Features
 - Import audio file into Blender's Video Sequence Editor (VSE).
