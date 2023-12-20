@@ -1,6 +1,7 @@
 import math
 import bpy
 import os
+import sys
 
 
 def delete_f_curves():
@@ -20,8 +21,8 @@ def import_audio(file_path, chanel):
         directory=os.path.dirname(file_path),
         files=[
             {
-            "name": audio_name,
-            "name": audio_name
+                "name": audio_name,
+                "name": audio_name
             }
         ],
         relative_path=True,
@@ -118,9 +119,10 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
             data_path='default_value', frame=1)
         bpy.context.area.type = "GRAPH_EDITOR"
 
-        bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=attack, release=release)
-        print("Created bar n°" + str(i))
-
+        bpy.ops.graph.sound_bake(filepath=file_path, low=loga_frequency_min, high=loga_frequency_max, attack=attack,
+                                 release=release)
+        loading_bar((i+1)/nb_barres, prefix='Progress:', suffix='Complete', length=nb_barres)
+        # print("Created bar n°" + str(i))
 
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[meter + str(1)].select_set(True)
@@ -134,8 +136,7 @@ def audio_processing(file_path, bar_count, spacing, attack, release, min_freq, m
     bpy.data.objects["Aspect"].location.z = zLocation
     bpy.context.area.type = original_type
     bpy.context.area.ui_type = 'PROPERTIES'
-    print("Created bar n°" + str(nb_barres))
-
+    # print("Created bar n°" + str(nb_barres))
 
 
 def remove_previous_meters():
@@ -154,6 +155,25 @@ def remove_previous_meters():
 bpy.types.WindowManager.show_mlt_interface = bpy.props.BoolProperty(name="Show MLT",
                                                                     description="When True, Show the MLT interface",
                                                                     default=False)
+
+
+def loading_bar(progress, prefix='', suffix='', length=40, fill='█'):
+    """
+    Create a loading bar in the console based on progress percentage.
+
+    Parameters:
+        progress (float): Progress percentage (0.0 to 1.0).
+        prefix (str): Prefix text.
+        suffix (str): Suffix text.
+        length (int): Length of the loading bar.
+        fill (str): Fill character for the loading bar.
+    """
+    bar_length = int(length * progress)
+    bar = fill * bar_length + '-' * (length - bar_length)
+
+    sys.stdout.write('\r%s |%s| %d%% %s' % (prefix, bar, progress * 100, suffix))
+    sys.stdout.flush()
+
 
 class RENDER_OT_generate_visualizer(bpy.types.Operator):
     bl_idname = "object.frequencies_generate"
@@ -181,6 +201,7 @@ class RENDER_OT_generate_visualizer(bpy.types.Operator):
                          context.scene.min_freq,
                          context.scene.max_freq)
         return {'FINISHED'}
+
 
 class FREQUENCIES_PT_ui(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
@@ -211,59 +232,59 @@ class FREQUENCIES_PT_ui(bpy.types.Panel):
         row = layout.row()
         row.operator("object.frequencies_generate", icon="FILE_REFRESH")
 
+
 def initprop():
     bpy.types.Scene.open_filebrowser = bpy.props.StringProperty(
         name="Audio Path",
         description="Define path of the audio file",
         subtype="FILE_PATH",
-        )
+    )
     bpy.types.Scene.min_freq = bpy.props.IntProperty(
         name="Min frequency",
         description="Minimum frequency from where to start",
         default=20,
         min=20,
         max=20000
-        )
+    )
     bpy.types.Scene.max_freq = bpy.props.IntProperty(
         name="Max frequency",
         description="Maximum frequency from where to start",
         default=20000,
         min=1,
         max=20000
-        )
+    )
     bpy.types.Scene.bz_bar_count = bpy.props.IntProperty(
         name="Bar Count",
         description="The number of bars to make",
         default=30,
         min=1
-        )
+    )
     bpy.types.Scene.bz_spacing = bpy.props.FloatProperty(
         name="Spacing",
         description="Spacing between bars",
         default=1.1,
         min=0
-        )
+    )
     bpy.types.Scene.chanel = bpy.props.IntProperty(
         name="Chanel",
         description="Chanel of audio",
         default=1,
         min=1
-        )
+    )
     bpy.types.Scene.attack = bpy.props.FloatProperty(
         name="Attack",
         description="Attack time",
         default=0.005,
         min=0,
         max=5
-        )
+    )
     bpy.types.Scene.release = bpy.props.FloatProperty(
         name="Release",
         description="Release time",
         default=0.2,
         min=0,
         max=2
-        )
-
+    )
 
 
 def register():
